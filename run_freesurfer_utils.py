@@ -54,7 +54,7 @@ os.chdir(output_dir)
 fs_subjects = []
 if args.participant_label:
     for s in args.participant_label:
-        fs_subjects.extend(sorted(glob("sub-" + s + "ses-*")))
+        fs_subjects.extend(sorted(glob("sub-" + s + "_ses-*")))
 # for all subjects
 else:
     fs_subjects = sorted(glob("sub-*_ses-*"))
