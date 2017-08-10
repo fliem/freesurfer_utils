@@ -79,7 +79,8 @@ if args.analysis_level == "participant":
             ignore_errors=True)
 
 
-
+    good_ses = []
+    bad_ses = []
     if "qcache" in args.workflow:
         if args.streams is None:
             streams = ["cross", "long"]
@@ -87,4 +88,11 @@ if args.analysis_level == "participant":
             streams = args.streams
         for fs_subject in fs_subjects:
             print("Running qcache for {}".format(fs_subject))
-            run_qcache(output_dir, fs_subject, args.n_cpus, args.measurements, streams)
+            try:
+                run_qcache(output_dir, fs_subject, args.n_cpus, args.measurements, streams)
+                good_ses.append(fs_subject)
+            except:
+                bad_ses.append(fs_subject)
+        print("Qcache finished. OK subjects: {}".format(good_ses))
+        if bad_ses:
+            raise Exception("Some subjects failed: {}".format(bad_ses))

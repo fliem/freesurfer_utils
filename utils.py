@@ -41,6 +41,10 @@ def run_qcache(output_dir, fs_subject, n_cpus, meas=[], streams=["cross", "long"
     else:
         meas_str = ""
 
+    if meas:
+        check_meas = meas[0]
+    else:
+        check_meas = "thickness"
     # cross
     if "cross" in streams:
         if not base_sub:
@@ -49,7 +53,9 @@ def run_qcache(output_dir, fs_subject, n_cpus, meas=[], streams=["cross", "long"
                                                                                                 meas_str=meas_str)
             print("Running", cmd)
             run(cmd, env={"SUBJECTS_DIR": output_dir})
-
+            test_file = os.path.join(output_dir, fs_subject, "surf/rh.{}.fwhm0.fsaverage.mgh".format(check_meas))
+            if not os.path.exists(test_file):
+                raise Exception("Something went wront. File not found after qcache {}".format(test_file))
     # long
     if "long" in streams:
         if base_sub:
@@ -59,3 +65,6 @@ def run_qcache(output_dir, fs_subject, n_cpus, meas=[], streams=["cross", "long"
                                                                                                              meas_str=meas_str)
             print("Running", cmd)
             run(cmd, env={"SUBJECTS_DIR": output_dir})
+            test_file = os.path.join(output_dir, fs_subject, "surf/rh.{}.fwhm0.fsaverage.mgh".format(check_meas))
+            if not os.path.exists(test_file):
+                raise Exception("Something went wront. File not found after qcache {}".format(test_file))
