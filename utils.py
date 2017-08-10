@@ -43,17 +43,19 @@ def run_qcache(output_dir, fs_subject, n_cpus, meas=[], streams=["cross", "long"
 
     # cross
     if "cross" in streams:
-        cmd = "recon-all -subjid {tp_sub} -qcache -parallel -openmp {n_cpus} {meas_str}".format(tp_sub=tp_sub,
-                                                                                            n_cpus=n_cpus,
-                                                                                            meas_str=meas_str)
-        print("Running", cmd)
-        run(cmd, env={"SUBJECTS_DIR": output_dir})
+        if not base_sub:
+            cmd = "recon-all -subjid {tp_sub} -qcache -parallel -openmp {n_cpus} {meas_str}".format(tp_sub=tp_sub,
+                                                                                                n_cpus=n_cpus,
+                                                                                                meas_str=meas_str)
+            print("Running", cmd)
+            run(cmd, env={"SUBJECTS_DIR": output_dir})
 
     # long
     if "long" in streams:
-        cmd = "recon-all -long {tp_sub} {base_sub} -qcache -parallel -openmp {n_cpus} {meas_str}".format(tp_sub=tp_sub,
-                                                                                                         base_sub=base_sub,
-                                                                                                         n_cpus=n_cpus,
-                                                                                                         meas_str=meas_str)
-        print("Running", cmd)
-        run(cmd, env={"SUBJECTS_DIR": output_dir})
+        if base_sub:
+            cmd = "recon-all -long {tp_sub} {base_sub} -qcache -parallel -openmp {n_cpus} {meas_str}".format(tp_sub=tp_sub,
+                                                                                                             base_sub=base_sub,
+                                                                                                             n_cpus=n_cpus,
+                                                                                                             meas_str=meas_str)
+            print("Running", cmd)
+            run(cmd, env={"SUBJECTS_DIR": output_dir})
