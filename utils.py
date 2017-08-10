@@ -53,6 +53,8 @@ def run_qcache(output_dir, fs_subject, n_cpus, meas=[], streams=["cross", "long"
                                                                                                 meas_str=meas_str)
             print("Running", cmd)
             run(cmd, env={"SUBJECTS_DIR": output_dir})
+
+            # perform simple check
             test_file = os.path.join(output_dir, fs_subject, "surf/rh.{}.fwhm0.fsaverage.mgh".format(check_meas))
             if not os.path.exists(test_file):
                 raise Exception("Something went wront. File not found after qcache {}".format(test_file))
@@ -65,6 +67,8 @@ def run_qcache(output_dir, fs_subject, n_cpus, meas=[], streams=["cross", "long"
                                                                                                              meas_str=meas_str)
             print("Running", cmd)
             run(cmd, env={"SUBJECTS_DIR": output_dir})
+
+            # perform simple check
             test_file = os.path.join(output_dir, fs_subject, "surf/rh.{}.fwhm0.fsaverage.mgh".format(check_meas))
             if not os.path.exists(test_file):
                 raise Exception("Something went wront. File not found after qcache {}".format(test_file))
