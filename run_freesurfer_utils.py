@@ -28,16 +28,17 @@ parser.add_argument('--participant_label', help='The label of the participant th
                     nargs="+")
 parser.add_argument('--n_cpus', help='Number of CPUs/cores available to use.',
                     default=1, type=int)
-parser.add_argument('--workflow', help='Workflow run.',
+parser.add_argument('--workflow', help='Workflow run.'
+                                       'qcache: run qcache for cross and long session folders. opt arg: --measurements',
                     choices=["qcache"],
                     nargs="+")
 parser.add_argument('--license_key',
                     help='FreeSurfer license key - letters and numbers after "*" in the email you received after registration. To register (for free) visit https://surfer.nmr.mgh.harvard.edu/registration.html',
                     required=True)
-parser.add_argument('--parcellations', help='Group2 option: cortical parcellation(s) to extract stats from.',
-                    choices=["aparc", "aparc.a2009s"],
-                    default=["aparc"],
-                    nargs="+")
+# parser.add_argument('--parcellations', help='Group2 option: cortical parcellation(s) to extract stats from.',
+#                     choices=["aparc", "aparc.a2009s"],
+#                     default=["aparc"],
+#                     nargs="+")
 parser.add_argument('--measurements', help='measurements for qcache',
                     nargs="+")
 
