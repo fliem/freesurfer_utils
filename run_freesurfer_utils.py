@@ -32,6 +32,9 @@ parser.add_argument('--workflow', help='Workflow run.'
                                        'qcache: run qcache for cross and long session folders. opt arg: --measurements',
                     choices=["qcache"],
                     nargs="+")
+parser.add_argument('--streams', help='apply workflow to cross, base, long subjects',
+                    choices=["cross", "base", "long"],
+                    nargs="+")
 parser.add_argument('--license_key',
                     help='FreeSurfer license key - letters and numbers after "*" in the email you received after registration. To register (for free) visit https://surfer.nmr.mgh.harvard.edu/registration.html',
                     required=True)
@@ -78,6 +81,8 @@ if args.analysis_level == "participant":
 
 
     if "qcache" in args.workflow:
+        if not args.streams:
+            streams = ["cross", "long"]
         for fs_subject in fs_subjects:
             print("Running qcache for {}".format(fs_subject))
-            run_qcache(output_dir, fs_subject, args.n_cpus)
+            run_qcache(output_dir, fs_subject, args.n_cpus, args.measurements, streams)

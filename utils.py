@@ -29,7 +29,9 @@ def split_fs_name(fs_subject):
     return tp_sub, base_sub, ses
 
 
-def run_qcache(output_dir, fs_subject, n_cpus, meas=[]):
+def run_qcache(output_dir, fs_subject, n_cpus, meas=[], streams=["cross", "long"]):
+    if not meas:
+        meas = []
     tp_sub, base_sub, ses = split_fs_name(fs_subject)
     if not ses:
         raise NotImplementedError("no base subject found. only implemented for long data {}".format(tp_sub))
@@ -40,16 +42,18 @@ def run_qcache(output_dir, fs_subject, n_cpus, meas=[]):
         meas_str = ""
 
     # cross
-    cmd = "recon-all -subjid {tp_sub} -qcache -parallel -openmp {n_cpus} {meas_str}".format(tp_sub=tp_sub,
+    if "cross" in streams:
+        cmd = "recon-all -subjid {tp_sub} -qcache -parallel -openmp {n_cpus} {meas_str}".format(tp_sub=tp_sub,
                                                                                             n_cpus=n_cpus,
                                                                                             meas_str=meas_str)
-    print("Running", cmd)
-    run(cmd, env={"SUBJECTS_DIR": output_dir})
+        print("Running", cmd)
+        run(cmd, env={"SUBJECTS_DIR": output_dir})
 
     # long
-    cmd = "recon-all -long {tp_sub} {base_sub} -qcache -parallel -openmp {n_cpus} {meas_str}".format(tp_sub=tp_sub,
-                                                                                                     base_sub=base_sub,
-                                                                                                     n_cpus=n_cpus,
-                                                                                                     meas_str=meas_str)
-    print("Running", cmd)
-    run(cmd, env={"SUBJECTS_DIR": output_dir})
+    if "long" in streams:
+        cmd = "recon-all -long {tp_sub} {base_sub} -qcache -parallel -openmp {n_cpus} {meas_str}".format(tp_sub=tp_sub,
+                                                                                                         base_sub=base_sub,
+                                                                                                         n_cpus=n_cpus,
+                                                                                                         meas_str=meas_str)
+        print("Running", cmd)
+        run(cmd, env={"SUBJECTS_DIR": output_dir})
