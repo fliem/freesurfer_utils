@@ -81,8 +81,10 @@ if args.analysis_level == "participant":
 
 
     if "qcache" in args.workflow:
-        if not args.streams:
+        if args.streams is None:
             streams = ["cross", "long"]
+        else:
+            streams = args.streams
         for fs_subject in fs_subjects:
             print("Running qcache for {}".format(fs_subject))
             run_qcache(output_dir, fs_subject, args.n_cpus, args.measurements, streams)
