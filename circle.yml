@@ -17,7 +17,7 @@ dependencies:
     #- if [[ ! -d ~/data/ds114_test2 ]]; then wget -c -O ${HOME}/ds114_test2.tar "https://files.osf.io/v1/resources/9q7dv/providers/osfstorage/57e549f9b83f6901d457d162" && mkdir -p ${HOME}/data && tar xf ${HOME}/ds114_test2.tar -C ${HOME}/data; fi
     #- if [[ ! -d ~/data/ds114_test1_freesurfer ]]; then wget -c -O ${HOME}/ds114_test1_freesurfer.tar "https://osf.io/j6zk2/?action=download&version=1" && mkdir -p ${HOME}/data && tar xf ${HOME}/ds114_test1_freesurfer.tar -C ${HOME}/data && cd ${HOME}/data && mv ds114_test1_freesurfer_precomp_v6.0.0 ds114_test1_freesurfer; fi
     - if [[ -d ~/data/ds114_test2_freesurfer ]]; then rm -rf ~/data/ds114_test2_freesurfer; fi; wget -c -O ${HOME}/ds114_test2_freesurfer.tar "https://osf.io/yhzzj/?action=download&version=1" && mkdir -p ${HOME}/data && tar xf ${HOME}/ds114_test2_freesurfer.tar -C ${HOME}/data&& cd ${HOME}/data && mv ds114_test2_freesurfer_precomp_v6.0.0 ds114_test2_freesurfer;
-    - git describe --tags > version
+    - git describe --tags --always > version
     - docker build -t fliem/${CIRCLE_PROJECT_REPONAME} . :
         timeout: 21600
     - mkdir -p ~/docker; docker save "fliem/${CIRCLE_PROJECT_REPONAME}" > ~/docker/image.tar
