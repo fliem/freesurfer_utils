@@ -35,6 +35,9 @@ parser.add_argument('--workflow', help='Workflow run.'
 parser.add_argument('--streams', help='apply workflow to cross, base, long subjects',
                     choices=["cross", "base", "long"],
                     nargs="+")
+parser.add_argument('--template_names', help='Name for templates used for qcache. E.g. fsaverage fsaverage4'
+                                             '(piped through to -target)',
+                    default=["fsaverage"], nargs="+")
 parser.add_argument('--license_key',
                     help='FreeSurfer license key - letters and numbers after "*" in the email you received after registration. To register (for free) visit https://surfer.nmr.mgh.harvard.edu/registration.html',
                     required=True)
@@ -65,18 +68,18 @@ else:
 print("Running ", fs_subjects)
 # running participant level
 if args.analysis_level == "participant":
-    if not os.path.exists(os.path.join(output_dir, "fsaverage")):
-        run("cp -rf " + os.path.join(os.environ["SUBJECTS_DIR"], "fsaverage") + " " + os.path.join(output_dir,
-                                                                                                   "fsaverage"),
-            ignore_errors=True)
+    for t in args.template_names:
+        if not os.path.exists(os.path.join(output_dir, t)):
+            run("cp -rf " + os.path.join(os.environ["SUBJECTS_DIR"], t) + " " + os.path.join(output_dir,t),
+                ignore_errors=False)
     if not os.path.exists(os.path.join(output_dir, "lh.EC_average")):
         run("cp -rf " + os.path.join(os.environ["SUBJECTS_DIR"], "lh.EC_average") + " " + os.path.join(output_dir,
                                                                                                        "lh.EC_average"),
-            ignore_errors=True)
+            ignore_errors=False)
     if not os.path.exists(os.path.join(output_dir, "rh.EC_average")):
         run("cp -rf " + os.path.join(os.environ["SUBJECTS_DIR"], "rh.EC_average") + " " + os.path.join(output_dir,
                                                                                                        "rh.EC_average"),
-            ignore_errors=True)
+            ignore_errors=False)
 
 
     good_ses = []
@@ -89,7 +92,7 @@ if args.analysis_level == "participant":
         for fs_subject in fs_subjects:
             print("Running qcache for {}".format(fs_subject))
             try:
-                run_qcache(output_dir, fs_subject, args.n_cpus, args.measurements, streams)
+                run_qcache(output_dir, fs_subject, args.n_cpus, args.template_names, args.measurements, streams)
                 good_ses.append(fs_subject)
             except:
                 bad_ses.append(fs_subject)
