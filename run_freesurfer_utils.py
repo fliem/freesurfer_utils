@@ -35,7 +35,7 @@ parser.add_argument('--workflow', help='Workflow run.'
 parser.add_argument('--streams', help='apply workflow to cross, base, long subjects',
                     choices=["cross", "base", "long"],
                     nargs="+")
-parser.add_argument('--template_names', help='Name for templates used for qcache. E.g. fsaverage fsaverage4'
+parser.add_argument('--template_names', help='Name for templates used for qcache. '
                                              '(piped through to -target)',
                     default=["fsaverage"], nargs="+")
 parser.add_argument('--license_key',
