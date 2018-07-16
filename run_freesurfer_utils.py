@@ -3,7 +3,7 @@ import argparse
 import os
 from glob import glob
 
-from utils import run_qcache, run
+from utils import run_qcache, run, check_fs_subjects
 
 
 __version__ = open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'version')).read()
@@ -28,9 +28,12 @@ parser.add_argument('--participant_label', help='The label of the participant th
                     nargs="+")
 parser.add_argument('--n_cpus', help='Number of CPUs/cores available to use.',
                     default=1, type=int)
-parser.add_argument('--workflow', help='Workflow run.'
-                                       'qcache: run qcache for cross and long session folders. opt arg: --measurements',
-                    choices=["qcache"],
+parser.add_argument('--workflow', help='Workflow to run.  '
+                                       'qcache: run qcache for cross and long session folders. opt arg: '
+                                       '--measurements.  '
+                    'check_fs_subjects: checks that for each subject and session with T1w there is a finished cross '
+                                       'and long fs subject',
+                    choices=["qcache", "check_fs_subjects"],
                     nargs="+")
 parser.add_argument('--streams', help='apply workflow to cross, base, long subjects',
                     choices=["cross", "base", "long"],
@@ -68,23 +71,23 @@ else:
 print("Running ", fs_subjects)
 # running participant level
 if args.analysis_level == "participant":
-    for t in args.template_names:
-        if not os.path.exists(os.path.join(output_dir, t)):
-            run("cp -rf " + os.path.join(os.environ["SUBJECTS_DIR"], t) + " " + os.path.join(output_dir,t),
-                ignore_errors=False)
-    if not os.path.exists(os.path.join(output_dir, "lh.EC_average")):
-        run("cp -rf " + os.path.join(os.environ["SUBJECTS_DIR"], "lh.EC_average") + " " + os.path.join(output_dir,
-                                                                                                       "lh.EC_average"),
-            ignore_errors=False)
-    if not os.path.exists(os.path.join(output_dir, "rh.EC_average")):
-        run("cp -rf " + os.path.join(os.environ["SUBJECTS_DIR"], "rh.EC_average") + " " + os.path.join(output_dir,
-                                                                                                       "rh.EC_average"),
-            ignore_errors=False)
-
 
     good_ses = []
     bad_ses = []
     if "qcache" in args.workflow:
+        for t in args.template_names:
+            if not os.path.exists(os.path.join(output_dir, t)):
+                run("cp -rf " + os.path.join(os.environ["SUBJECTS_DIR"], t) + " " + os.path.join(output_dir, t),
+                    ignore_errors=False)
+        if not os.path.exists(os.path.join(output_dir, "lh.EC_average")):
+            run("cp -rf " + os.path.join(os.environ["SUBJECTS_DIR"], "lh.EC_average") + " " + os.path.join(output_dir,
+                                                                                                           "lh.EC_average"),
+                ignore_errors=False)
+        if not os.path.exists(os.path.join(output_dir, "rh.EC_average")):
+            run("cp -rf " + os.path.join(os.environ["SUBJECTS_DIR"], "rh.EC_average") + " " + os.path.join(output_dir,
+                                                                                                           "rh.EC_average"),
+                ignore_errors=False)
+
         if args.streams is None:
             streams = ["cross", "long"]
         else:
@@ -99,3 +102,8 @@ if args.analysis_level == "participant":
         print("Qcache finished. OK subjects: {}".format(good_ses))
         if bad_ses:
             raise Exception("Some subjects failed: {}".format(bad_ses))
+
+
+
+    elif "check_fs_subjects" in args.workflow:
+        check_fs_subjects(args.bids_dir, output_dir)

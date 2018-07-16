@@ -1,6 +1,7 @@
 from subprocess import Popen, PIPE
 import subprocess
 import os
+from glob import glob
 
 
 def run(command, env={}, ignore_errors=False):
@@ -80,3 +81,48 @@ def run_qcache(output_dir, fs_subject, n_cpus, template_names, meas=[], streams=
                 test_file = os.path.join(output_dir, fs_subject, "surf/rh.{}.fwhm0.fsaverage.mgh".format(check_meas))
                 if not os.path.exists(test_file):
                     raise Exception("Something went wront. File not found after qcache {}".format(test_file))
+
+
+def check_fs_subjects(sourcedata_dir, fs_dir):
+    "checks that for every subject and session with T1w there is a finished cross and long fs subject"
+    from bids.grabbids import BIDSLayout
+
+    layout = BIDSLayout(sourcedata_dir)
+    df = layout.as_data_frame()
+    df = df[["subject", "session", "type"]].drop_duplicates().query("type=='T1w'")
+    df.reset_index(inplace=True, drop=True)
+
+    # fs
+    os.chdir(fs_dir)
+    df["cross"] = None
+    df["long"] = None
+
+    for r in df.itertuples(index=True):
+        print(r)
+        cross = True if glob("sub-{s}_ses-{ses}/scripts/recon-all.done".format(s=r.subject, ses=r.session)) else False
+        long = True if glob(
+            "sub-{s}_ses-{ses}.long.sub-*/scripts/recon-all.done".format(s=r.subject, ses=r.session)) else False
+
+        df.loc[r.Index, "cross"] = cross
+        df.loc[r.Index, "long"] = long
+
+    missing = df[df.cross == False]
+    raise_ex = False
+
+    if len(missing) > 0:
+        print("*** CROSS missing for {} entries".format(len(missing)))
+        print(missing)
+        raise_ex = True
+
+    missing = df[df.long == False]
+    if len(missing) > 0:
+        print("*** LONG missing for {} entries".format(len(missing)))
+        print(missing)
+        raise_ex = True
+
+    print("*** Found {} cross and {} long sessions from {} subjects".format(df.cross.sum(), df.long.sum(),
+                                                                            len(df.subject.unique())))
+    if raise_ex:
+        raise Exception("SOME FS SUBJECTS ARE MISSING")
+    else:
+        print("Everything looks good")
