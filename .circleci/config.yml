@@ -13,6 +13,19 @@ jobs:
             keys:
               - data-v1-
         - run:
+            name: Get test data
+            command: |
+              mkdir -p /tmp/data
+              echo "looking for ${TEST_DATA_NAME}"
+              ls /tmp/data/${TEST_DATA_NAME}
+              if [[ ! -d /tmp/data/${TEST_DATA_NAME} ]]; then
+                wget --retry-connrefused --waitretry=5 --read-timeout=20 --timeout=15 -t 0 -q \
+                  -O ${TEST_DATA_NAME}.tar.gz "${TEST_DATA_URL}"
+                tar xvzf ${TEST_DATA_NAME}.tar.gz -C /tmp/data/
+              else
+                echo "Dataset ${TEST_DATA_NAME} was cached"
+              fi
+        - run:
             name: ls1
             command: |
               echo ${TEST_DATA_NAME}
