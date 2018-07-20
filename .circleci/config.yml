@@ -1,0 +1,40 @@
+version: 2
+jobs:
+
+  get_data:
+      machine:
+        # Ubuntu 14.04 with Docker 17.10.0-ce
+        image: circleci/classic:201711-01
+      environment:
+        - TEST_DATA_NAME: "ds114_test2_freesurfer"
+        - TEST_DATA_URL: "https://osf.io/yhzzj/?action=download&version=1"
+      working_directory: /home/circleci/data
+      steps:
+        - restore_cache:
+            keys:
+              - data-v1-{{ epoch }}
+              - data-v1-
+        - run:
+            name: Get test data
+            command: |
+              mkdir -p /tmp/data
+              if [[ ! -d /tmp/data/${TEST_DATA_NAME} ]]; then
+                wget --retry-connrefused --waitretry=5 --read-timeout=20 --timeout=15 -t 0 -q \
+                  -O ${TEST_DATA_NAME}.tar.gz "${TEST_DATA_URL}"
+                tar xvzf ${TEST_DATA_NAME}.tar.gz -C /tmp/data/
+              else
+                echo "Dataset ${TEST_DATA_NAME} was cached"
+              fi
+        - persist_to_workspace:
+            root: /tmp
+            paths:
+              - data
+        - save_cache:
+           key: data-v1-{{ epoch }}
+           paths:
+              - /tmp/data
+workflows:
+  version: 2
+  build_test_deploy:
+    jobs:
+      - get_data
