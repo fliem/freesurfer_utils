@@ -106,7 +106,8 @@ jobs:
           no_output_timeout: 40m
           command: |
             mkdir -p /tmp/cache
-            docker save ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}:latest \
+            docker save bids/freesurfer:v6.0.0-5 \
+            ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}:latest \
               | pigz -2 -p 3 > /tmp/cache/docker.tar.gz
       - persist_to_workspace:
           root: /tmp
