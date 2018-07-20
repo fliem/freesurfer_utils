@@ -1,6 +1,5 @@
 version: 2
 jobs:
-
   get_data:
       machine:
         # Ubuntu 14.04 with Docker 17.10.0-ce
@@ -24,10 +23,6 @@ jobs:
               else
                 echo "Dataset ${TEST_DATA_NAME} was cached"
               fi
-#        - persist_to_workspace:
-#            root: /tmp
-#            paths:
-#              - data
         - save_cache:
            key: data-v1-
            paths:
@@ -42,9 +37,7 @@ jobs:
       - run:
           name: ls
           command: |
-          ls /tmp/data/
-
-
+            ls
 
 workflows:
   version: 2
