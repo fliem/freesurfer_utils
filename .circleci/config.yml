@@ -27,7 +27,7 @@ jobs:
            paths:
               - /tmp/data
 
-  build:
+  lsthings:
     machine:
       # Ubuntu 14.04 with Docker 17.10.0-ce
       image: circleci/classic:201711-01
@@ -43,6 +43,6 @@ workflows:
   build_test_deploy:
     jobs:
       - get_data
-      - build:
+      - lsthings:
           requires:
             - get_data
