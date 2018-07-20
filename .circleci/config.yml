@@ -14,14 +14,24 @@ jobs:
               - data-v1-
         - run:
             name: ls1
-            command: ls /tmp/data
+            command: |
+              if [[ ! -d /tmp/data/${TEST_DATA_NAME} ]]; then
+                echo "data not found"
+              else
+                echo "data found"
+              fi
         - persist_to_workspace:
             root: /tmp
             paths:
-              - data
+              - data/*
         - run:
             name: ls2
-            command: ls /tmp/data
+            command: |
+              if [[ ! -d /tmp/data/${TEST_DATA_NAME} ]]; then
+                echo "data not found"
+              else
+                echo "data found"
+              fi
         - save_cache:
            key: data-v1-
            paths:
