@@ -21,6 +21,13 @@ def run(command, env={}, ignore_errors=False):
 
 
 def split_fs_name(fs_subject):
+    """
+    In [3]: split_fs_name("sub-lhabX0001_ses-tp1")
+    Out[3]: ('sub-lhabX0001_ses-tp1', '', True)
+
+    In [4]: split_fs_name("sub-lhabX0001_ses-tp1.long.sub-lhabX0001")
+    Out[4]: ('sub-lhabX0001_ses-tp1', 'sub-lhabX0001', True)
+    """
     if "long" in fs_subject:
         tp_sub, base_sub = fs_subject.split(".long.")
         tp_ses = tp_sub.split("ses-")[-1]
@@ -31,22 +38,33 @@ def split_fs_name(fs_subject):
     return tp_sub, base_sub, ses
 
 
-def run_qcache(output_dir, fs_subject, n_cpus, template_names, meas=[], streams=["cross", "long"]):
-    if not meas:
-        meas = []
+def _check_qcache_files_exist(fs_dir, fs_subject, meas):
+    from glob import glob
+    from itertools import product
+    hemis = ["lh", "rh"]
+    smooth = "0 5 10 15 20 25".split(" ")
+    missing = []
+    prod = product(hemis, meas, smooth)
+    for items in prod:
+        print(items)
+        search_file = "{}.{}.fwhm{}.fsaverage.mgh".format(*items)
+        search_path = os.path.join(fs_dir, fs_subject, "surf", search_file)
+        print("Checking {}".format(search_path))
+        g = glob(search_path)
+        if not g:
+            missing.append(search_path)
+    if missing:
+        raise Exception("Some files are missing {}".format(missing))
+    else:
+        print("All files available")
+
+def run_qcache(output_dir, fs_subject, n_cpus, template_names, meas=["thickness"], streams=["cross", "long"]):
+
     tp_sub, base_sub, ses = split_fs_name(fs_subject)
     if not ses:
         raise NotImplementedError("no base subject found. only implemented for long data {}".format(tp_sub))
+    meas_str = "-measure " + " -measure ".join(meas)
 
-    if meas:
-        meas_str = "-measure " + " -measure ".join(meas)
-    else:
-        meas_str = ""
-
-    if meas:
-        check_meas = meas[0]
-    else:
-        check_meas = "thickness"
     # cross
     if "cross" in streams:
         if not base_sub:
@@ -59,10 +77,9 @@ def run_qcache(output_dir, fs_subject, n_cpus, template_names, meas=[], streams=
                 print("Running", cmd)
                 run(cmd, env={"SUBJECTS_DIR": output_dir})
 
-                # perform simple check
-                test_file = os.path.join(output_dir, fs_subject, "surf/rh.{}.fwhm0.fsaverage.mgh".format(check_meas))
-                if not os.path.exists(test_file):
-                    raise Exception("Something went wront. File not found after qcache {}".format(test_file))
+                # check that files have been created
+                _check_qcache_files_exist(output_dir, fs_subject, meas)
+
     # long
     if "long" in streams:
         if base_sub:
@@ -77,10 +94,8 @@ def run_qcache(output_dir, fs_subject, n_cpus, template_names, meas=[], streams=
                 print("Running", cmd)
                 run(cmd, env={"SUBJECTS_DIR": output_dir})
 
-                # perform simple check
-                test_file = os.path.join(output_dir, fs_subject, "surf/rh.{}.fwhm0.fsaverage.mgh".format(check_meas))
-                if not os.path.exists(test_file):
-                    raise Exception("Something went wront. File not found after qcache {}".format(test_file))
+                # check that files have been created
+                _check_qcache_files_exist(output_dir, fs_subject, meas)
 
 
 def check_fs_subjects(sourcedata_dir, fs_dir):
@@ -126,3 +141,5 @@ def check_fs_subjects(sourcedata_dir, fs_dir):
         raise Exception("SOME FS SUBJECTS ARE MISSING")
     else:
         print("Everything looks good")
+
+
