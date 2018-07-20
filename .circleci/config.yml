@@ -52,18 +52,6 @@ jobs:
            paths:
               - /tmp/data
 
-  lsthings:
-    machine:
-      # Ubuntu 14.04 with Docker 17.10.0-ce
-      image: circleci/classic:201711-01
-    working_directory: /home/circleci/data
-    steps:
-      - attach_workspace:
-          at: /tmp
-      - run:
-          name: ls
-          command: |
-            ls /tmp/data
 
   build:
     docker:
@@ -122,12 +110,33 @@ jobs:
 
 
 
+  test:
+    machine:
+      # Ubuntu 14.04 with Docker 17.10.0-ce
+      image: circleci/classic:201711-01
+    working_directory: /home/circleci/tests
+    steps:
+      - attach_workspace:
+          at: /tmp
+      - run:
+          name: load docker images
+          command: |
+            if [ -f /tmp/cache/docker.tar.gz ]; then
+              pigz -d --stdout /tmp/cache/docker.tar.gz | docker load
+            fi
+            docker images
+      - run:
+          name: print version
+          command: |
+            docker run -ti --rm --read-only ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}:latest --version
+
 workflows:
   version: 2
   build_test_deploy:
     jobs:
       - get_data
       - build
-      - lsthings:
+      - test:
           requires:
             - get_data
+            - build
