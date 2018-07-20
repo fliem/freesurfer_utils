@@ -12,6 +12,10 @@ jobs:
         - restore_cache:
             keys:
               - data-v1-
+        - persist_to_workspace:
+            root: /tmp
+            paths:
+              - data
         - save_cache:
            key: data-v1-
            paths:
