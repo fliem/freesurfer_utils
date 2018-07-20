@@ -5,7 +5,7 @@ jobs:
         # Ubuntu 14.04 with Docker 17.10.0-ce
         image: circleci/classic:201711-01
       environment:
-        - TEST_DATA_NAME: "ds114_test2_freesurfer"
+        - TEST_DATA_NAME: "ds114_test2_freesurfer_precomp_v6.0.0"
         - TEST_DATA_URL: "https://osf.io/yhzzj/?action=download&version=1"
       working_directory: /home/circleci/data
       steps:
