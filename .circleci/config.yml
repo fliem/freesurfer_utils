@@ -63,11 +63,65 @@ jobs:
           command: |
             ls /tmp/data
 
+  build:
+    docker:
+      - image: docker:18.01.0-ce-git
+    working_directory: /tmp/docker
+    steps:
+      - run:
+          name: Install parallel gzip and python3
+          command: apk add --no-cache pigz python3
+      - restore_cache:
+          keys:
+            - docker-v1-
+          paths:
+            - /tmp/cache/docker.tar.gz
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Load Docker image layer cache
+          no_output_timeout: 30m
+          command: |
+            docker info
+            set +o pipefail
+            if [ -f /tmp/cache/docker.tar.gz ]; then
+              pigz -d --stdout /tmp/cache/docker.tar.gz | docker load
+            fi
+            docker images
+      - run:
+          name: get version
+          command: |
+            git describe --tags --always > version
+      - run:
+          name: Build Docker image
+          no_output_timeout: 60m
+          command: |
+            docker build -t ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} .
+            docker images
+      - run:
+          name: Docker save
+          no_output_timeout: 40m
+          command: |
+            mkdir -p /tmp/cache
+            docker save ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} \
+              | pigz -2 -p 3 > /tmp/cache/docker.tar.gz
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - cache/docker.tar.gz
+      - save_cache:
+         key: docker-v1-
+         paths:
+            - /tmp/cache/docker.tar.gz
+
+
+
 workflows:
   version: 2
   build_test_deploy:
     jobs:
       - get_data
+      - build
       - lsthings:
           requires:
             - get_data
