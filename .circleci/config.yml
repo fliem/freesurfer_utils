@@ -12,17 +12,6 @@ jobs:
         - restore_cache:
             keys:
               - data-v1-
-        - run:
-            name: Get test data
-            command: |
-              mkdir -p /tmp/data
-              if [[ ! -d /tmp/data/${TEST_DATA_NAME} ]]; then
-                wget --retry-connrefused --waitretry=5 --read-timeout=20 --timeout=15 -t 0 -q \
-                  -O ${TEST_DATA_NAME}.tar.gz "${TEST_DATA_URL}"
-                tar xvzf ${TEST_DATA_NAME}.tar.gz -C /tmp/data/
-              else
-                echo "Dataset ${TEST_DATA_NAME} was cached"
-              fi
         - save_cache:
            key: data-v1-
            paths:
@@ -37,7 +26,7 @@ jobs:
       - run:
           name: ls
           command: |
-            ls
+            ls /tmp/data
 
 workflows:
   version: 2
