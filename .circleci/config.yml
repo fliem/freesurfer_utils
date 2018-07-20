@@ -130,6 +130,9 @@ jobs:
       - attach_workspace:
           at: /tmp
       - run:
+          name: Install parallel gzip and python3
+          command: apk add --no-cache pigz python3
+      - run:
           name: load docker images
           command: |
             pigz -d --stdout /tmp/cache/docker.tar.gz | docker load
