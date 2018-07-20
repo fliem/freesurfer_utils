@@ -24,14 +24,26 @@ jobs:
               else
                 echo "Dataset ${TEST_DATA_NAME} was cached"
               fi
-        - persist_to_workspace:
-            root: /tmp
-            paths:
-              - data
+#        - persist_to_workspace:
+#            root: /tmp
+#            paths:
+#              - data
         - save_cache:
            key: data-v1-
            paths:
               - /tmp/data
+
+  build:
+    machine:
+      # Ubuntu 14.04 with Docker 17.10.0-ce
+      image: circleci/classic:201711-01
+    working_directory: /home/circleci/data
+    steps:
+      - run:
+          name: ls
+          command: |
+          ls /tmp/data/
+
 
 
 workflows:
@@ -39,3 +51,6 @@ workflows:
   build_test_deploy:
     jobs:
       - get_data
+      - build:
+          requires:
+            - get_data
