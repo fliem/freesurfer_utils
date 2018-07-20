@@ -12,7 +12,6 @@ jobs:
       steps:
         - restore_cache:
             keys:
-              - data-v1-{{ epoch }}
               - data-v1-
         - run:
             name: Get test data
@@ -30,7 +29,7 @@ jobs:
             paths:
               - data
         - save_cache:
-           key: data-v1-{{ epoch }}
+           key: data-v1-
            paths:
               - /tmp/data
 
