@@ -11,7 +11,8 @@ jobs:
       steps:
         - restore_cache:
             keys:
-              - data-v1-
+            - data-v1-{{ epoch }}
+            - data-v1-
         - run:
             name: Get test data
             command: |
@@ -48,7 +49,7 @@ jobs:
                 echo "data found"
               fi
         - save_cache:
-           key: data-v1-
+           key: data-v1-{{ epoch }}
            paths:
               - /tmp/data
 
@@ -63,6 +64,9 @@ jobs:
           command: apk add --no-cache pigz python3
       - restore_cache:
           keys:
+            - docker-v1-{{ .Branch }}-{{ epoch }}
+            - docker-v1-{{ .Branch }}-
+            - docker-v1-master-
             - docker-v1-
           paths:
             - /tmp/cache/docker.tar.gz
@@ -102,12 +106,20 @@ jobs:
           root: /tmp
           paths:
             - cache/docker.tar.gz
+
+
+  update_cache:
+    machine:
+      # Ubuntu 14.04 with Docker 17.10.0-ce
+      image: circleci/classic:201711-01
+    working_directory: /home/circleci/updatecache
+    steps:
+      - attach_workspace:
+          at: /tmp
       - save_cache:
-         key: docker-v1-
+         key: docker-v1-{{ .Branch }}-{{ epoch }}
          paths:
             - /tmp/cache/docker.tar.gz
-
-
 
   test:
     machine:
@@ -135,6 +147,12 @@ workflows:
     jobs:
       - get_data
       - build
+      - update_cache:
+        requires:
+          - build
+        filters:
+          tags:
+            only: /.*/
       - test:
           requires:
             - get_data
