@@ -35,10 +35,9 @@ jobs:
               else
                 echo "data found"
               fi
-        - persist_to_workspace:
-            root: /tmp/
-            paths:
-              - data
+        - attach_workspace:
+            at: /tmp/data
+            
         - run:
             name: ls2
             command: |
