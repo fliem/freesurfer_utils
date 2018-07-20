@@ -92,11 +92,14 @@ jobs:
           name: get version
           command: |
             git describe --tags --always > version
+            cat version
       - run:
           name: Build Docker image
           no_output_timeout: 60m
           command: |
-            docker build -t ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}:latest .
+            docker images
+            docker build --cache-from=${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME} \
+            -t ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}:latest .
             docker images
       - run:
           name: Docker save
