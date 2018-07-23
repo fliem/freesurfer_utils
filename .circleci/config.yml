@@ -156,29 +156,55 @@ jobs:
             cat ~/data/ds114_test2_freesurfer/sub-01_ses-retest.long.sub-01/surf/rh.thickness.fwhm0.fsaverage.mgh
             cat ~/data/ds114_test2_freesurfer/sub-01_ses-retest/surf/rh.thickness.fwhm0.fsaverage.mgh
 
+  deploy:
+    machine:
+      image: circleci/classic:201711-01
+    working_directory: /home/circleci/deploy
+    steps:
+      - attach_workspace:
+          at: /tmp
+      - run:
+          name: Install parallel gzip
+          command: sudo apt-get update && sudo apt-get install pigz
+      - run:
+          name: Load Docker image layer cache
+          no_output_timeout: 30m
+          command: |
+            docker info
+            set +o pipefail
+            pigz -d --stdout /tmp/cache/docker.tar.gz | docker load
+            docker images
+      - run:
+          name: Deploy to Docker Hub
+          no_output_timeout: 40m
+          command: |
+            if [[ -n "$DOCKER_PASS" ]]; then
+              docker login -u $DOCKER_USER -p $DOCKER_PASS
+              docker push poldracklab/mriqc:latest
+              docker tag ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}:latest ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}:$CIRCLE_TAG
+              docker push ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}:$CIRCLE_TAG
+            fi
+
+
 workflows:
   version: 2
   build_test_deploy:
     jobs:
-      - get_data:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
-      - build:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
+      - get_data
+      - build
       - update_cache:
           requires:
             - build
-          filters:
-            tags:
-              only: /.*/
       - test:
           requires:
             - get_data
             - build
+      - deploy:
+          requires:
+            - build
+            - test
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
