@@ -154,7 +154,7 @@ jobs:
           name: test qcache
           command: |
             docker run -ti --rm --read-only -v /tmp/data/bids_dataset -v ${TEST_DATA_DIR}:/outputs ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}:latest /bids_dataset /outputs participant --participant_label 01 --license_key="~/test.key" --workflow qcache --measurements thickness
-            cat ${TEST_DATA_DIR}/ds114_test2_freesurfer/sub-01_ses-retest.long.sub-01/surf/rh.thickness.fwhm0.fsaverage.mgh
+            cat ${TEST_DATA_DIR}/sub-01_ses-retest.long.sub-01/surf/rh.thickness.fwhm0.fsaverage.mgh
             cat ${TEST_DATA_DIR}/sub-01_ses-retest/surf/rh.thickness.fwhm0.fsaverage.mgh
 
   deploy:
