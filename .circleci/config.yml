@@ -180,7 +180,6 @@ jobs:
           command: |
             if [[ -n "$DOCKER_PASS" ]]; then
               docker login -u $DOCKER_USER -p $DOCKER_PASS
-              docker push poldracklab/mriqc:latest
               docker tag ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}:latest ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}:$CIRCLE_TAG
               docker push ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}:$CIRCLE_TAG
             fi
