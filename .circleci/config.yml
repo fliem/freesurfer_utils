@@ -194,15 +194,27 @@ workflows:
   version: 2
   build_test_deploy:
     jobs:
-      - get_data
-      - build
+      - get_data:
+          filters:
+            tags:
+              only: /.*/
+      - build:
+          filters:
+            tags:
+              only: /.*/
       - update_cache:
           requires:
             - build
+          filters:
+            tags:
+              only: /.*/
       - test:
           requires:
             - get_data
             - build
+          filters:
+            tags:
+              only: /.*/
       - deploy:
           requires:
             - build
