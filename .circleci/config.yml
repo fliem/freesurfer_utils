@@ -145,13 +145,33 @@ jobs:
           name: print version
           command: |
             docker run -ti --rm --read-only ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}:latest --version
+      - run:
+          name: print help
+          command: |
+            docker run -ti --rm --read-only ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}:latest -h
+      - run:
+          name: test qcache
+          command: |
+            docker run -ti --rm --read-only -v /tmp/data/bids_dataset -v /tmp/data/ds114_test2_freesurfer:/outputs ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}:latest /bids_dataset /outputs participant --participant_label 01 --license_key="~/test.key" --workflow qcache --measurements thickness
+            cat ~/data/ds114_test2_freesurfer/sub-01_ses-retest.long.sub-01/surf/rh.thickness.fwhm0.fsaverage.mgh
+            cat ~/data/ds114_test2_freesurfer/sub-01_ses-retest/surf/rh.thickness.fwhm0.fsaverage.mgh
 
 workflows:
   version: 2
   build_test_deploy:
     jobs:
-      - get_data
-      - build
+      - get_data:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
+      - build:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
       - update_cache:
           requires:
             - build
