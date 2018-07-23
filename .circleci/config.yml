@@ -60,8 +60,8 @@ jobs:
     working_directory: /tmp/docker
     steps:
       - run:
-          name: Install parallel gzip and python3
-          command: apk add --no-cache pigz python3
+          name: Install parallel gzip
+          command: apk add --no-cache pigz
       - restore_cache:
           keys:
             - docker-v1-{{ .Branch }}-{{ epoch }}
@@ -133,8 +133,8 @@ jobs:
       - attach_workspace:
           at: /tmp
       - run:
-          name: Install parallel gzip and python3
-          command: apk add --no-cache pigz python3
+          name: Install parallel gzip
+          command: sudo apt-get update && sudo apt-get install pigz
       - run:
           name: load docker images
           command: |
