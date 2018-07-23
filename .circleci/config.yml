@@ -129,6 +129,8 @@ jobs:
       # Ubuntu 14.04 with Docker 17.10.0-ce
       image: circleci/classic:201711-01
     working_directory: /home/circleci/tests
+    environment:
+      - TEST_DATA_DIR: "/tmp/data/ds114_test2_freesurfer_precomp_v6.0.0/"
     steps:
       - attach_workspace:
           at: /tmp
@@ -152,9 +154,9 @@ jobs:
       - run:
           name: test qcache
           command: |
-            docker run -ti --rm --read-only -v /tmp/data/bids_dataset -v /tmp/data/ds114_test2_freesurfer:/outputs ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}:latest /bids_dataset /outputs participant --participant_label 01 --license_key="~/test.key" --workflow qcache --measurements thickness
-            cat ~/data/ds114_test2_freesurfer/sub-01_ses-retest.long.sub-01/surf/rh.thickness.fwhm0.fsaverage.mgh
-            cat ~/data/ds114_test2_freesurfer/sub-01_ses-retest/surf/rh.thickness.fwhm0.fsaverage.mgh
+            docker run -ti --rm --read-only -v /tmp/data/bids_dataset -v ${TEST_DATA_DIR}:/outputs ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}:latest /bids_dataset /outputs participant --participant_label 01 --license_key="~/test.key" --workflow qcache --measurements thickness
+            cat ${TEST_DATA_DIR}/ds114_test2_freesurfer/sub-01_ses-retest.long.sub-01/surf/rh.thickness.fwhm0.fsaverage.mgh
+            cat ${TEST_DATA_DIR}/sub-01_ses-retest/surf/rh.thickness.fwhm0.fsaverage.mgh
 
   deploy:
     machine:
